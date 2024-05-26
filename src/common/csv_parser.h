@@ -4,7 +4,7 @@
 #ifndef _CSV_PARSER_H_
 #define _CSV_PARSER_H_
 
-#include <cstdio> // for fopen, fclose, etc.
+#include <cstdio>  // for fopen, fclose, etc.
 
 #define MAX_LINE_LEN (1024 * 512)
 #define MAX_COLUMN_COUNT 1024
@@ -19,14 +19,14 @@
 */
 
 enum {
-    E_LINE_TOO_WIDE = -2, // error code for line width >= MAX_LINE_LEN
-    E_QUOTED_STRING // error code for ill-formatted quoted string
+  E_LINE_TOO_WIDE = -2,  // error code for line width >= MAX_LINE_LEN
+  E_QUOTED_STRING        // error code for ill-formatted quoted string
 };
 
 // mimic sqlite callback interface
 //
-typedef int (*CSV_CB_record_handler)(
-    void* params, int colum_cnt, const char** column_values);
+typedef int (*CSV_CB_record_handler)(void* params, int colum_cnt,
+                                     const char** column_values);
 
 int csv_parse(FILE* fp, CSV_CB_record_handler cb, void* params);
 

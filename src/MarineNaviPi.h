@@ -3,14 +3,14 @@
 #ifndef _SDR_PI_H_
 #define _SDR_PI_H_
 
-#include "CheckPathCase.h"
+#include "cases/CheckPathCase.h"
 
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
-#endif // precompiled headers
+#endif  // precompiled headers
 
 #include <wx/fileconf.h>
 #include <wx/datetime.h>
@@ -21,7 +21,7 @@
 #include "json/reader.h"
 #include "json/writer.h"
 
-#include "ocpn_plugin.h" //Required for OCPN plugin functions
+#include "ocpn_plugin.h"  //Required for OCPN plugin functions
 
 #include "MarineNaviDlg.h"
 #include "RenderOverlay.h"
@@ -38,74 +38,76 @@
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-#define ShipDriver_TOOL_POSITION                                               \
-    -1 // Request default positioning of toolbar tool
+#define ShipDriver_TOOL_POSITION \
+  -1  // Request default positioning of toolbar tool
 
 class MarineNaviPi : public opencpn_plugin_118 {
 public:
-    MarineNaviPi(void* ppimgr);
-    ~MarineNaviPi(void);
+  MarineNaviPi(void *ppimgr);
+  ~MarineNaviPi(void);
 
-    //    The required PlugIn Methods
-    int Init(void);
-    bool DeInit(void);
+  //    The required PlugIn Methods
+  int Init(void);
+  bool DeInit(void);
 
-    int GetAPIVersionMajor();
-    int GetAPIVersionMinor();
-    int GetPlugInVersionMajor();
-    int GetPlugInVersionMinor();
-    wxBitmap* GetPlugInBitmap();
-    wxString GetCommonName();
-    wxString GetShortDescription();
-    wxString GetLongDescription();
+  int GetAPIVersionMajor();
+  int GetAPIVersionMinor();
+  int GetPlugInVersionMajor();
+  int GetPlugInVersionMinor();
+  wxBitmap *GetPlugInBitmap();
+  wxString GetCommonName();
+  wxString GetShortDescription();
+  wxString GetLongDescription();
 
-
-    bool RenderOverlay(wxDC &wxdc, PlugIn_ViewPort *vp) override {
-        if (!renderOverlay_) {
-            return false;
-        }
-        piDC dc(wxdc);
-        
-        return renderOverlay_->Render(dc, vp);
+  bool RenderOverlay(wxDC &wxdc, PlugIn_ViewPort *vp) override {
+    if (!renderOverlay_) {
+      return false;
     }
+    piDC dc(wxdc);
 
-    bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp) override {
-        if (!renderOverlay_) {
-            return false;
-        }
-        piDC dc;
-        dc.SetVP(vp);
+    return renderOverlay_->Render(dc, vp);
+  }
 
-        return renderOverlay_->Render(dc, vp);
+  bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp) override {
+    if (!renderOverlay_) {
+      return false;
     }
+    piDC dc;
+    dc.SetVP(vp);
+
+    return renderOverlay_->Render(dc, vp);
+  }
 
   virtual void SendVectorChartObjectInfo(wxString &chart, wxString &feature,
                                          wxString &objname, double lat,
                                          double lon, double scale,
                                          int nativescale) {
-        const char* chartStr = chart.mb_str();
-        const char* featureStr = feature.mb_str();
-        const char* objnameStr = objname.mb_str();
-        fprintf(stderr, "Chart: %s\nFeature: %s\nObjname: %s\nLat: %f\nLon: %f\nScale: %f\nNativescale: %d\n", chartStr, featureStr, objnameStr, lat, lon, scale, nativescale);
-    }
+    const char *chartStr = chart.mb_str();
+    const char *featureStr = feature.mb_str();
+    const char *objnameStr = objname.mb_str();
+    fprintf(stderr,
+            "Chart: %s\nFeature: %s\nObjname: %s\nLat: %f\nLon: %f\nScale: "
+            "%f\nNativescale: %d\n",
+            chartStr, featureStr, objnameStr, lat, lon, scale, nativescale);
+  }
 
-    int GetToolbarToolCount(void) { return 1; }
-    void OnToolbarToolCallback(int id);
+  int GetToolbarToolCount(void) { return 1; }
+  void OnToolbarToolCallback(int id);
 
-    void OnMainDlgClose();
+  void OnMainDlgClose();
 
-    static wxString StandardPath();
+  static wxString StandardPath();
 
-    wxBitmap panelBitmap_;
+  wxBitmap panelBitmap_;
 
 private:
-    MarineNavi::Dependencies deps_;
-    wxWindow* parentWindow_;
-    std::shared_ptr<MarineNavi::MarineNaviMainDlg> dlg_;
-    std::shared_ptr<MarineNavi::RenderOverlay> renderOverlay_;
+  MarineNavi::Dependencies deps_;
+  wxWindow *parentWindow_;
+  std::shared_ptr<MarineNavi::MarineNaviMainDlg> dlg_;
+  std::shared_ptr<MarineNavi::RenderOverlay> renderOverlay_;
 
-    int toolId_;
-    bool showDlg_;
+  int toolId_;
+  bool showDlg_;
 };
 
 #endif

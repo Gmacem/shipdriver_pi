@@ -14,7 +14,7 @@ namespace MarineNavi {
 
 struct WeatherForecastData {
     Utils::Point Point;
-    
+
     double WaveHeight;
 
 };

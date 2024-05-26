@@ -51,26 +51,39 @@ set(PKG_HOMEPAGE https://github.com/Rasbats/shipdriver_pi)
 set(PKG_INFO_URL https://opencpn.org/OpenCPN/plugins/shipdriver.html)
 
 set(SRC
-    src/CheckPathCase.h
-    src/common.h
-    src/csv_parser.cpp
-    src/csv_parser.h
-    src/DbClient.cpp
-    src/DbClient.h
+    src/cases/CheckPathCase.cpp
+    src/cases/CheckPathCase.h
+
+    src/clients/DbClient.cpp
+    src/clients/DbClient.h
+    src/clients/Esimo.cpp
+    src/clients/Esimo.h
+    src/clients/ForecastsProvider.h
+
+    src/common/csv_parser.cpp
+    src/common/csv_parser.h
+    src/common/Utils.cpp
+    src/common/Utils.h
+
+    src/entities/DepthGrid.cpp
+    src/entities/DepthGrid.h
+    src/entities/Ship.h
+    src/entities/WeatherForecast.h
+    src/entities/WeatherGrid.h
+
     src/Dependencies.cpp
     src/Dependencies.h
-    src/DepthGrid.h
-    src/Forecasts.h
     src/icons.cpp
     src/icons.h
     src/MarineNaviDlg.cpp
     src/MarineNaviDlg.h
     src/MarineNaviPi.cpp
     src/MarineNaviPi.h
+    src/RenderOverlay.cpp
     src/RenderOverlay.h
-    src/Ship.h
-    src/WeatherGrid.h
 )
+
+include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 
 set(PKG_API_LIB api-18)  #  A dir in opencpn-libs/ e. g., api-17 or api-16
 
