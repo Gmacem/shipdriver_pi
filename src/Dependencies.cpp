@@ -1,7 +1,9 @@
 #include "Dependencies.h"
 
 #include "cases/CheckPathCase.h"
+#include "cases/ForecastsLoader.h"
 #include "clients/DbClient.h"
+#include "clients/Esimo.h"
 #include "RenderOverlay.h"
 
 namespace MarineNavi {
@@ -9,10 +11,13 @@ namespace MarineNavi {
 Dependencies CreateDependencies(wxWindow* ocpnCanvasWindow) {
   Dependencies deps;
   deps.OcpnCanvasWindow = ocpnCanvasWindow;
-  deps.CheckPathCase = std::make_shared<MarineNavi::CheckPathCase>();
-  deps.RenderOverlay = std::make_shared<MarineNavi::RenderOverlay>(deps);
   deps.Db = CreateDatabase("marinenavi.db");
   deps.DbClient = std::make_shared<DbClient>(deps.Db);
+  deps.ForecastsLoader =
+      std::make_shared<MarineNavi::ForecastsLoader>(deps.DbClient);
+  deps.CheckPathCase =
+      std::make_shared<MarineNavi::CheckPathCase>(deps.DbClient);
+  deps.RenderOverlay = std::make_shared<MarineNavi::RenderOverlay>(deps);
   return deps;
 }
 

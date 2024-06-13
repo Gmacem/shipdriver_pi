@@ -1,7 +1,7 @@
 #include "MarineNaviDlg.h"
 
 #include "cases/CheckPathCase.h"
-#include "Dependencies.h"
+#include "cases/ForecastsLoader.h"
 
 #include <ocpn_plugin.h>
 
@@ -46,7 +46,8 @@ MarineNaviMainDlg::MarineNaviMainDlg(wxWindow* parent, wxWindowID id,
                                      const Dependencies& dependencies)
     : MarineNaviDlgBase(parent, id, title, pos, size),
       canvasWindow_(dependencies.OcpnCanvasWindow),
-      checkPathCase_(dependencies.CheckPathCase) {
+      checkPathCase_(dependencies.CheckPathCase),
+      forecastsLoader_(dependencies.ForecastsLoader) {
   auto* fgSizer11 = new wxFlexGridSizer(0, 2, 0, 0);
   fgSizer11->AddGrowableCol(1);
   fgSizer11->SetFlexibleDirection(wxBOTH);
@@ -57,6 +58,7 @@ MarineNaviMainDlg::MarineNaviMainDlg(wxWindow* parent, wxWindowID id,
   cEndLat_ = new wxTextCtrl(this, wxID_ANY);
   cEndLon_ = new wxTextCtrl(this, wxID_ANY);
   cShipDraft_ = new wxTextCtrl(this, wxID_ANY);
+  cMaxWave_ = new wxTextCtrl(this, wxID_ANY);
   cPathToFile_ = new wxTextCtrl(this, wxID_ANY);
 
   fgSizer11->Add(new wxStaticText(this, wxID_ANY, _("Start point lat")));
@@ -70,7 +72,8 @@ MarineNaviMainDlg::MarineNaviMainDlg(wxWindow* parent, wxWindowID id,
 
   fgSizer11->Add(new wxStaticText(this, wxID_ANY, _("Ship draft")));
   fgSizer11->Add(cShipDraft_, 0, wxALL | wxEXPAND, 5);
-
+  fgSizer11->Add(new wxStaticText(this, wxID_ANY, _("Max wave")));
+  fgSizer11->Add(cMaxWave_, 0, wxALL | wxEXPAND, 5);
   fgSizer11->Add(
       new wxStaticText(this, wxID_ANY, _("Path to depth data file")));
   fgSizer11->Add(cPathToFile_, 0, wxALL | wxEXPAND, 5);
@@ -78,9 +81,11 @@ MarineNaviMainDlg::MarineNaviMainDlg(wxWindow* parent, wxWindowID id,
   auto* fgSizer = new wxFlexGridSizer(0, 1, 0, 0);
 
   bCheckPath_ = new wxButton(this, wxID_ANY, _("Check path"));
+  bLoadForecasts_ = new wxButton(this, wxID_ANY, _("Download forecasts"));
 
   fgSizer->Add(fgSizer11);
   fgSizer->Add(bCheckPath_);
+  fgSizer->Add(bLoadForecasts_);
   fgSizer->AddGrowableRow(0);
   fgSizer->SetFlexibleDirection(wxBOTH);
   fgSizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
@@ -91,12 +96,20 @@ MarineNaviMainDlg::MarineNaviMainDlg(wxWindow* parent, wxWindowID id,
   bCheckPath_->Connect(
       wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(MarineNaviMainDlg::OnCheckPathClicked), NULL, this);
+  bLoadForecasts_->Connect(
+      wxEVT_COMMAND_BUTTON_CLICKED,
+      wxCommandEventHandler(MarineNaviMainDlg::OnLoadForecastsClicked), NULL,
+      this);
 }
 
 MarineNaviMainDlg::~MarineNaviMainDlg() {
   bCheckPath_->Disconnect(
       wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(MarineNaviMainDlg::OnCheckPathClicked), NULL, this);
+  bLoadForecasts_->Disconnect(
+      wxEVT_COMMAND_BUTTON_CLICKED,
+      wxCommandEventHandler(MarineNaviMainDlg::OnLoadForecastsClicked), NULL,
+      this);
 }
 
 void MarineNaviMainDlg::OnCheckPathClicked(wxCommandEvent& event) {
@@ -107,6 +120,7 @@ void MarineNaviMainDlg::OnCheckPathClicked(wxCommandEvent& event) {
   auto rawLatEnd = cEndLat_->GetValue();
   auto rawLonEnd = cEndLon_->GetValue();
   auto rawShipDraft = cShipDraft_->GetValue();
+  auto rawMaxWave = cMaxWave_->GetValue();
   pathData.PathToDepthFile = cPathToFile_->GetValue();
 
   if (!rawLatStart.ToDouble(&pathData.Start.Lat) ||
@@ -125,9 +139,28 @@ void MarineNaviMainDlg::OnCheckPathClicked(wxCommandEvent& event) {
     }
     pathData.ShipDraft = shipDraft;
   }
+  if (!rawMaxWave.empty()) {  // TODO unite with rawShip
+    double maxWave;
+    if (!rawMaxWave.ToDouble(&maxWave)) {
+      printf("failed to parse max wave");  // TODO notify somehow
+      return;
+    }
+    pathData.MaxWaveHeight = maxWave;
+  }
 
   checkPathCase_->SetPathData(pathData);
   checkPathCase_->SetShow(true);
+  checkPathCase_->CrossDetect();
   RequestRefresh(canvasWindow_);
 }
+
+void MarineNaviMainDlg::OnLoadForecastsClicked(wxCommandEvent& event) {
+  try {
+    forecastsLoader_->Load();
+  } catch (const std::exception& ex) {
+    fprintf(stderr, "Failed esimo forecasts loading with reason %s\n",
+            ex.what());
+  }
+}
+
 }  // namespace MarineNavi

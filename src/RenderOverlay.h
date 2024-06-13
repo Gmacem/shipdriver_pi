@@ -5,6 +5,8 @@
 #include "cases/CheckPathCase.h"
 #include "Dependencies.h"
 
+#include <wx/wx.h>
+
 namespace MarineNavi {
 
 class RenderOverlay {
@@ -18,6 +20,9 @@ private:
 
 private:
   std::shared_ptr<CheckPathCase> checkPathCase_;
+
+  bool checkPathCalculated_;
+  std::optional<wxPoint2DDouble> checkPathResult_;
 };
 
 }  // namespace MarineNavi

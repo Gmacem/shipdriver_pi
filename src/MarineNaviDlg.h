@@ -40,19 +40,23 @@ public:
 
 private:
   void OnCheckPathClicked(wxCommandEvent& event);
+  void OnLoadForecastsClicked(wxCommandEvent& event);
 
 private:
   wxWindow* canvasWindow_;
   std::shared_ptr<CheckPathCase> checkPathCase_;
+  std::shared_ptr<ForecastsLoader> forecastsLoader_;
 
   wxTextCtrl* cStartLat_;
   wxTextCtrl* cStartLon_;
   wxTextCtrl* cEndLat_;
   wxTextCtrl* cEndLon_;
   wxTextCtrl* cShipDraft_;
+  wxTextCtrl* cMaxWave_;
   wxTextCtrl* cPathToFile_;  // TODO use wxFileDialog or something else
 
   wxButton* bCheckPath_;
+  wxButton* bLoadForecasts_;
 };
 
 };  // namespace MarineNavi

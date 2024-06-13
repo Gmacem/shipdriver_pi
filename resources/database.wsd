@@ -1,0 +1,31 @@
+@startuml database
+' hide the spot
+' hide circle
+
+' avoid problems with angled crows feet
+
+entity "forecasts" as e01 {
+    id: int
+    ---
+    creted_at: text 
+    source: int
+}
+
+entity "forecast_records" as e02 {
+    id: int
+    ---
+    created_at: text
+    started_at: text
+    end_at: text
+    lat: real
+    lon: real
+    wave_height: optional real
+    swell_height: optional real
+    forecast_id: int <<FK>>
+    ---
+    unique index: date, lat, lon, forecast_id
+}
+
+e01 ||..o{ e02
+
+@enduml

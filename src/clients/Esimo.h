@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/csv_parser.h"
+#include "common/HttpClient.h"
 
 #include "ForecastsProvider.h"
 
@@ -16,7 +17,8 @@ namespace MarineNavi {
 
 class EsimoProvider : public IForecastsProvider {
 public:
-  EsimoProvider(std::string resourceId, std::optional<std::string> filter);
+  EsimoProvider(const std::string& resourceId,
+                std::optional<std::string> filter = std::nullopt);
 
   void LoadForecasts() override;
   Forecast GetForecast() override;
@@ -27,9 +29,14 @@ private:
   wxString SaveData(const std::string& data);
 
 private:
-  wxCurlHTTP curl_;
+  std::string resourceId_;
+
+  Utils::HttpClient curl_;
+
   std::string url;
   std::string responseBody_;
+
+  std::vector<ForecastRecord> records_;
 };
 
 }  // namespace MarineNavi

@@ -33,12 +33,10 @@ void RenderOverlay::RenderCheckPath(piDC& dc, PlugIn_ViewPort* vp,
   pt2.y = round(wxRound(ptD.m_y));
   dc.DrawLine(pt1.x, pt1.y, pt2.x, pt2.y);
 
-  auto cross = checkPathCase_->CrossDetect(pathData);
+  auto cross = checkPathCase_->GetLastResult();
   if (cross.has_value()) {
-    fprintf(stderr, "Draw circle %f %f\n", cross->m_x, cross->m_y);
     wxPoint2DDouble crossCenter;
     GetDoubleCanvasPixLL(vp, &crossCenter, cross->m_x, cross->m_y);
-    fprintf(stderr, "Draw circle2 %f %f\n", crossCenter.m_x, crossCenter.m_y);
     dc.DrawCircle(round(crossCenter.m_x), round(crossCenter.m_y), 10);
   }
 }

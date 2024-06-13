@@ -53,6 +53,8 @@ set(PKG_INFO_URL https://opencpn.org/OpenCPN/plugins/shipdriver.html)
 set(SRC
     src/cases/CheckPathCase.cpp
     src/cases/CheckPathCase.h
+    src/cases/ForecastsLoader.cpp
+    src/cases/ForecastsLoader.h
 
     src/clients/DbClient.cpp
     src/clients/DbClient.h
@@ -62,6 +64,8 @@ set(SRC
 
     src/common/csv_parser.cpp
     src/common/csv_parser.h
+    src/common/HttpClient.cpp
+    src/common/HttpClient.h
     src/common/Utils.cpp
     src/common/Utils.h
 

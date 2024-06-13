@@ -5,6 +5,7 @@
 #include <vector>
 
 namespace MarineNavi {
+
 class IForecastsProvider {
 public:
   virtual void LoadForecasts() = 0;

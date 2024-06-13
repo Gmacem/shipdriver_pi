@@ -2,7 +2,8 @@
 
 namespace MarineNavi {
 
-CheckPathCase::CheckPathCase() : mutex_(), pathData_(), show_(false) {}
+CheckPathCase::CheckPathCase(std::shared_ptr<MarineNavi::DbClient> dbClient)
+    : mutex_(), pathData_(), show_(false), dbClient_(dbClient) {}
 
 void CheckPathCase::SetPathData(const PathData& pathData) {
   std::lock_guard lock(mutex_);
@@ -16,7 +17,6 @@ const PathData& CheckPathCase::GetPathData() {
 
 void CheckPathCase::SetShow(bool show) {
   std::lock_guard lock(mutex_);
-  fprintf(stderr, "Trying set show\n");
   show_ = show;
 }
 
@@ -52,8 +52,24 @@ bool CheckPathCase::CheckDepth(const DepthGrid& grid, const Point& p,
   return true;
 }
 
-std::optional<wxPoint2DDouble> CheckPathCase::CrossDetect(
-    const PathData& pathData_) const {
+std::optional<wxPoint2DDouble> CheckPathCase::GetLastResult() {
+  std::lock_guard lock(mutex_);
+  return lastResult_;
+}
+
+void CheckPathCase::CrossDetect() {
+  std::lock_guard lock(mutex_);
+  fprintf(stderr, "Cross detect\n");
+
+  try {
+    lastResult_ = CrossDetectImpl();
+  } catch (std::exception& ex) {
+    fprintf(stderr, "Failed detect impl %s\n", ex.what());
+    lastResult_ = std::nullopt;
+  }
+}
+
+std::optional<wxPoint2DDouble> CheckPathCase::CrossDetectImpl() const {
   static constexpr int ITER_NUM = 50;
   const Point start = pathData_.Start;
   const Point end = pathData_.End;
@@ -63,16 +79,38 @@ std::optional<wxPoint2DDouble> CheckPathCase::CrossDetect(
     grid = DepthGrid(pathData_.PathToDepthFile.value());
   }
 
-  if (!CheckLandIntersection(start, end)) {
-    return std::nullopt;
-  }
-
   Point vec = end - start;
+
+  std::vector<std::pair<int, Point> > pathPoints;
 
   for (int i = 0; i <= ITER_NUM; ++i) {
     double k = static_cast<double>(i) / ITER_NUM;
-    Point vv = vec * k;
-    Point p = start + vv;
+    Point p = start + vec * k;
+    pathPoints.emplace_back(i, p);
+  }
+
+  auto forecasts = dbClient_->SelectNearestForecasts(
+      pathPoints, Utils::CurrentFormattedTime());
+
+  std::unordered_map<int, double> forecast_by_point;
+  for (auto& [id, wave_height, swell_height] : forecasts) {
+    if (!wave_height.has_value()) {
+      continue;
+    }
+    double height = wave_height.value();
+    height += swell_height.has_value() ? swell_height.value() : 0;
+    forecast_by_point[id] = height;
+  }
+
+  for (size_t i = 0; i < pathPoints.size(); ++i) {
+    auto& p = pathPoints[i].second;
+
+    auto it = forecast_by_point.find(pathPoints[i].first);
+    if (pathData_.MaxWaveHeight.has_value() && it != forecast_by_point.end()) {
+      if (it->second >= pathData_.MaxWaveHeight) {
+        return wxPoint2DDouble(p.Lat, p.Lon);
+      }
+    }
 
     if (grid.has_value() &&
         !CheckDepth(grid.value(), p, pathData_.ShipDraft.value())) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ctime>
+#include <string>
 #include <optional>
 
 namespace MarineNavi {
@@ -10,14 +10,14 @@ enum class ForecastsSource {
 };
 
 struct Forecast {
-  time_t StartedAt;
-  time_t FinishedAt;
+  std::string StartedAt;
+  std::string FinishedAt;
   ForecastsSource Source;
 };
 
 struct ForecastRecord {
-  time_t StartedAt;
-  time_t Date;
+  std::string StartedAt;
+  std::string Date;
   double Lat;
   double Lon;
   std::optional<double> WaveHeight;

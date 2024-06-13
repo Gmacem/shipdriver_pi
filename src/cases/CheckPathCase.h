@@ -1,7 +1,8 @@
 #pragma once
 
-#include "entities/DepthGrid.h"
+#include "clients/DbClient.h"
 #include "common/Utils.h"
+#include "entities/DepthGrid.h"
 
 #include <ocpn_plugin.h>
 
@@ -18,27 +19,34 @@ struct PathData {
 
   std::optional<double> ShipDraft;
   std::optional<std::string> PathToDepthFile;
+  std::optional<double> MaxWaveHeight;
 };
 
 class CheckPathCase {
   using Point = Utils::Point;
 
 public:
-  CheckPathCase();
+  CheckPathCase(std::shared_ptr<MarineNavi::DbClient> dbClient);
   void SetPathData(const PathData& pathData);
   const PathData& GetPathData();
   void SetShow(bool show);
-
   bool IsShow();
 
   bool CheckLandIntersection(const Point& p1, const Point& p2) const;
   bool CheckDepth(const DepthGrid& grid, const Point& p, double draft) const;
-  std::optional<wxPoint2DDouble> CrossDetect(const PathData& pathData_) const;
+  void CrossDetect();
+
+  std::optional<wxPoint2DDouble> GetLastResult();
+
+private:
+  std::optional<wxPoint2DDouble> CrossDetectImpl() const;
 
 private:
   std::mutex mutex_;
   PathData pathData_;
   bool show_;
+  std::shared_ptr<MarineNavi::DbClient> dbClient_;
+  std::optional<wxPoint2DDouble> lastResult_;
 };
 
 }  // namespace MarineNavi
