@@ -6,25 +6,19 @@
 #include <iomanip>
 #include <string>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 namespace {
 constexpr int BUFFER_SIZE = 1024;
-char const* kInsertForecastQuery =
-    "INSERT INTO forecasts (source) "
-    "VALUES (%d) "
-    "RETURNING id";
+
+using BaseArgVar = clients::query_builder::BaseArgVar;
+using ComposedArgVar = clients::query_builder::ComposedArgVar;
 
 char const* kInsertForecastRecordQuery =
     "INSERT INTO forecast_records ("
     "started_at, end_at, lat, lon, wave_height, swell_height, forecast_id) "
     "VALUES ('%s', '%s', %lf, %lf, %s, %s, %d) "
     "RETURNING id";
-
-char const* kInserForecastRecordBatchQuery =
-    "INSERT INTO forecast_records ("
-    "started_at, end_at, lat, lon, wave_height, swell_height, forecast_id) "
-    "VALUES ";
 
 char const* kSelectClosestForecasts =
     "WITH path(id, X, Y) AS ("
@@ -46,68 +40,37 @@ char const* kSelectClosestForecasts =
 }  // namespace
 
 int64_t DbClient::InsertForecast(ForecastsSource source) {
-  char buff[BUFFER_SIZE];
-  sprintf(buff, kInsertForecastQuery, source);
-  return InsertQuery(buff);
+  const std::string kQueryName = "kInsertForecast";
+  const auto& template = query_storage_->GetTemplate(kQueryName);
+  const auto query = template.MakeQuery({static_cast<int64_t>(source)});
+
+  return InsertQuery(query);
 }
 
-int64_t DbClient::InsertForecastRecord(std::string startedAt, std::string endAt,
-                                       double lat, double lon,
-                                       std::optional<double> waveHeight,
-                                       std::optional<double> swellHeight,
-                                       int64_t forecastId) {
-  char buff[BUFFER_SIZE];
-
-  std::string waveHeightS = "NULL";
-  std::string swellHeightS = "NULL";
-
-  if (waveHeight.has_value()) {
-    waveHeightS = std::to_string(waveHeight.value());
-  }
-  if (swellHeight.has_value()) {
-    swellHeightS = std::to_string(swellHeight.value());
-  }
-
-  sprintf(buff, kInsertForecastRecordQuery, startedAt.data(), endAt.data(), lat,
-          lon, waveHeightS.data(), swellHeightS.data(), forecastId);
-  return InsertQuery(buff);
-}
-
-void DbClient::InsertForecastRecords(const std::vector<ForecastRecord>& records,
-                                     int64_t forecastId) {
+void DbClient::InsertForecastRecordBatch(const std::vector<ForecastRecord>& records,
+                                         int64_t forecastId) {
   static constexpr int BATCH_SIZE = 512;
+  const std::string kQueryName = "kInserForecastRecordBatchQuery";
+  const auto& template = query_storage_->GetTemplate(kQueryName);
 
   SQLite::Transaction trans(*db_);
-  int cur = 0;
   for (size_t i = 0; i < records.size(); i += BATCH_SIZE) {
-    fprintf(stderr, "Load progress: %d/%lu\n", cur++,
-            (records.size() + BATCH_SIZE - 1) / BATCH_SIZE);
-    std::stringstream ss;
-    ss << kInserForecastRecordBatchQuery;
     size_t bound = std::min(i + BATCH_SIZE, records.size());
+    std::vector<ComposedArgVar> outer;
     for (size_t j = i; j < bound; ++j) {
-      const auto& record = records[j];
-
-      std::string waveHeightS = "NULL";
-      std::string swellHeightS = "NULL";
-
-      if (record.WaveHeight.has_value()) {
-        waveHeightS = std::to_string(record.WaveHeight.value());
-      }
-      if (record.SwellHeight.has_value()) {
-        swellHeightS = std::to_string(record.SwellHeight.value());
-      }
-
-      ss << std::fixed << std::setprecision(3) << "('" << record.StartedAt
-         << "', '" << record.Date << "', " << record.Lat << ", " << record.Lon
-         << ", " << waveHeightS << ", " << swellHeightS << ", " << forecastId
-         << ")";
-      if (j + 1 < bound) {
-        ss << ", ";
-      }
+      std::vector<std::vector<BaseArgVar>> inner{
+        records[j].started_at,
+        records[j].end_at,
+        records[j].lat,
+        records[j].lon,
+        records[j].wave_height,
+        records[j].swell_height,
+        forecastId
+      };
+      outer.emplace_back(std::move(inner));
     }
-    std::string query = ss.str();
-    db_->exec(query);
+    db_->exec(template.MakeQuery(args));
+    wxLogInfo(wxT("Load progress: %lu/%lu"), bound, records.size());
   }
   trans.commit();
 }
@@ -167,19 +130,21 @@ std::shared_ptr<SQLite::Database> CreateDatabase(std::string dbName) {
 
 std::vector<std::tuple<int, std::optional<double>, std::optional<double>>>
 DbClient::SelectNearestForecasts(
-    const std::vector<std::pair<int, MarineNavi::Utils::Point>>& points_with_id,
+    const std::vector<std::pair<int, marine_navi::Utils::Point>>& points_with_id,
     const std::string& date) {
-  std::stringstream ss;
+
+  const std::string kQueryName = "kSelectClosestForecasts";
+  const auto& template = query_storage_->GetTemplate(kQueryName);
+
+  std::vector<std::vector<clients::::BaseArgVar> > first_arg(points_with_id.size());
   for (size_t i = 0; i < points_with_id.size(); ++i) {
     const auto& [id, point] = points_with_id[i];
-    ss << "(" << id << ", " << point.X() << ", " << point.Y() << ")";
-    if (i + 1 < points_with_id.size()) {
-      ss << ", ";
-    }
+    first_arg[i] = std::vector<clients::::BaseArgVar>{
+      id, point.X(), point.Y()
+    };
   }
-  std::string query_vals = ss.str();
 
-  auto query = MarineNavi::Utils::StringFormat(kSelectClosestForecasts,
+  auto query = marine_navi::Utils::StringFormat(kSelectClosestForecasts,
                                                ss.str().data(), date.data());
   fprintf(stderr, "Nearest point query: %s\n", query.data());
   SQLite::Statement st(*db_, query);
@@ -205,4 +170,4 @@ DbClient::SelectNearestForecasts(
   return result;
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

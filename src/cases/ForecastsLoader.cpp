@@ -3,7 +3,7 @@
 #include "clients/Esimo.h"
 #include "common/Utils.h"
 
-namespace MarineNavi {
+namespace marine_navi {
 namespace {
 
 using namespace std::chrono_literals;
@@ -43,4 +43,4 @@ ForecastsLoader::~ForecastsLoader() {
   }
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

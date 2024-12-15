@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 class IForecastsProvider {
 public:
@@ -13,4 +13,4 @@ public:
   virtual std::vector<ForecastRecord> GetRecords() = 0;
   virtual ~IForecastsProvider() = default;
 };
-}  // namespace MarineNavi
+}  // namespace marine_navi

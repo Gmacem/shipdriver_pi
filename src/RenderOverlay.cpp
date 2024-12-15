@@ -1,6 +1,6 @@
 #include "RenderOverlay.h"
 
-namespace MarineNavi {
+namespace marine_navi {
 
 RenderOverlay::RenderOverlay(Dependencies& deps)
     : checkPathCase_(deps.CheckPathCase) {}
@@ -41,4 +41,4 @@ void RenderOverlay::RenderCheckPath(piDC& dc, PlugIn_ViewPort* vp,
   }
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

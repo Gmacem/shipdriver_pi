@@ -69,6 +69,9 @@ set(SRC
     src/common/Utils.cpp
     src/common/Utils.h
 
+    src/dialogs/MainDialog.cpp
+    src/dialogs/MainDialog.h
+
     src/entities/DepthGrid.cpp
     src/entities/DepthGrid.h
     src/entities/Ship.h
@@ -79,8 +82,6 @@ set(SRC
     src/Dependencies.h
     src/icons.cpp
     src/icons.h
-    src/MarineNaviDlg.cpp
-    src/MarineNaviDlg.h
     src/MarineNaviPi.cpp
     src/MarineNaviPi.h
     src/RenderOverlay.cpp

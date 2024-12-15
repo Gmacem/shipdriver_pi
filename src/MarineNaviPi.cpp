@@ -74,7 +74,7 @@ static wxBitmap load_plugin(const char* icon_name, const char* api_name) {
 
 MarineNaviPi::MarineNaviPi(void* ppimgr)
     : opencpn_plugin_118(ppimgr),
-      deps_(MarineNavi::CreateDependencies(nullptr)),
+      deps_(marine_navi::CreateDependencies(nullptr)),
       parentWindow_(nullptr),
       dlg_(nullptr),
       renderOverlay_(deps_.RenderOverlay),
@@ -153,11 +153,11 @@ wxString MarineNaviPi::GetLongDescription() { return PKG_DESCRIPTION; }
 
 void MarineNaviPi::OnToolbarToolCallback(int id) {
   if (!dlg_) {
-    dlg_ = std::make_shared<MarineNavi::MarineNaviMainDlg>(
+    dlg_ = std::make_shared<marine_navi::MarineNaviMainDlg>(
         parentWindow_, -1, "Main dialog", wxPoint(100, 100), wxSize(800, 800),
         deps_);
     dlg_->Register(std::bind(&MarineNaviPi::OnMainDlgClose, this),
-                   MarineNavi::MarineNaviDlgBase::EventType::kClose);
+                   marine_navi::MarineNaviDlgBase::EventType::kClose);
   }
 
   // Toggle

@@ -6,7 +6,7 @@
 #include <string>
 #include <time.h>
 
-namespace MarineNavi {
+namespace marine_navi {
 namespace Utils {
 
 struct Point {
@@ -45,4 +45,4 @@ std::string CurrentFormattedTime(
     const std::string& format = "%Y-%m-%d %H:%M:%S");
 
 }  // namespace Utils
-}  // namespace MarineNavi
+}  // namespace marine_navi

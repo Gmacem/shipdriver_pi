@@ -11,7 +11,7 @@
 #include <mutex>
 #include <optional>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 struct PathData {
   Utils::Point Start;
@@ -26,7 +26,7 @@ class CheckPathCase {
   using Point = Utils::Point;
 
 public:
-  CheckPathCase(std::shared_ptr<MarineNavi::DbClient> dbClient);
+  CheckPathCase(std::shared_ptr<marine_navi::DbClient> dbClient);
   void SetPathData(const PathData& pathData);
   const PathData& GetPathData();
   void SetShow(bool show);
@@ -45,8 +45,8 @@ private:
   std::mutex mutex_;
   PathData pathData_;
   bool show_;
-  std::shared_ptr<MarineNavi::DbClient> dbClient_;
+  std::shared_ptr<marine_navi::DbClient> dbClient_;
   std::optional<wxPoint2DDouble> lastResult_;
 };
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

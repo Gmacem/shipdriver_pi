@@ -1,35 +1,30 @@
 #pragma once
 
-#include "ForecastsProvider.h"
-
-#include "entities/WeatherForecast.h"
-#include "common/Utils.h"
+#include <memory>
+#include <string>
 
 #include <SQLiteCpp/Database.h>
 #include <SQLiteCpp/Transaction.h>
 
-#include <memory>
-#include <string>
+#include "entities/WeatherForecast.h"
+#include "common/Utils.h"
 
-namespace MarineNavi {
+#include "ForecastsProvider.h"
+#include "clients/query_builder/SqlQueryStorage.h"
+
+namespace marine_navi {
 
 class DbClient {
 public:
   DbClient(std::shared_ptr<SQLite::Database> db) : db_(db) {}
 
   int64_t InsertForecast(ForecastsSource source);
-  int64_t InsertForecastRecord(std::string startedAt, std::string endAt,
-                               double lat, double lon,
-                               std::optional<double> waveHeight,
-                               std::optional<double> swellHeight,
-                               int64_t forecastId);  // TODO: batch upsert
-
-  void InsertForecastRecords(const std::vector<ForecastRecord>& records,
-                             int64_t forecastId);
+  void InsertForecastRecordBatch(const std::vector<ForecastRecord>& records,
+                                 int64_t forecastId);
 
   std::vector<std::tuple<int, std::optional<double>, std::optional<double>>>
   SelectNearestForecasts(
-      const std::vector<std::pair<int, MarineNavi::Utils::Point>>&
+      const std::vector<std::pair<int, marine_navi::Utils::Point>>&
           points_with_id,
       const std::string& date);
 
@@ -37,9 +32,10 @@ private:
   int64_t InsertQuery(std::string query);
 
 private:
+  std::shared_ptr<SqlQueryStorage> query_storage_;
   std::shared_ptr<SQLite::Database> db_;
 };
 
 std::shared_ptr<SQLite::Database> CreateDatabase(std::string dbName);
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

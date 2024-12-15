@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace MarineNavi {
+namespace marine_navi {
 namespace {
 namespace fs = std::filesystem;
 
@@ -118,4 +118,4 @@ wxString EsimoProvider::SaveData(const std::string& data) {
   return savePath;
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

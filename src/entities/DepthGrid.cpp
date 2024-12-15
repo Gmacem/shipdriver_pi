@@ -1,6 +1,6 @@
 #include "DepthGrid.h"
 
-namespace MarineNavi {
+namespace marine_navi {
 
 namespace {
 template <typename T>
@@ -52,4 +52,4 @@ std::optional<double> DepthGrid::GetDepth(const double lat, double lon) const {
   return data_[r][c];
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

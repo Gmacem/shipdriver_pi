@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-namespace MarineNavi {
+namespace marine_navi {
 namespace Utils {
 
 double& Point::X() { return Lon; }
@@ -55,4 +55,4 @@ std::string CurrentFormattedTime(const std::string& format) {
 }
 
 }  // namespace Utils
-}  // namespace MarineNavi
+}  // namespace marine_navi

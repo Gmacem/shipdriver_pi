@@ -7,7 +7,7 @@
 
 #include <wx/wx.h>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 class RenderOverlay {
 public:
@@ -25,4 +25,4 @@ private:
   std::optional<wxPoint2DDouble> checkPathResult_;
 };
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

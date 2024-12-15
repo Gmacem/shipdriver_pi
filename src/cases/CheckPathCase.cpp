@@ -1,8 +1,8 @@
 #include "CheckPathCase.h"
 
-namespace MarineNavi {
+namespace marine_navi {
 
-CheckPathCase::CheckPathCase(std::shared_ptr<MarineNavi::DbClient> dbClient)
+CheckPathCase::CheckPathCase(std::shared_ptr<marine_navi::DbClient> dbClient)
     : mutex_(), pathData_(), show_(false), dbClient_(dbClient) {}
 
 void CheckPathCase::SetPathData(const PathData& pathData) {
@@ -124,4 +124,4 @@ std::optional<wxPoint2DDouble> CheckPathCase::CrossDetectImpl() const {
   return std::nullopt;
 }
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

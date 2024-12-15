@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 class EsimoProvider : public IForecastsProvider {
 public:
@@ -39,4 +39,4 @@ private:
   std::vector<ForecastRecord> records_;
 };
 
-}  // namespace MarineNavi
+}  // namespace marine_navi

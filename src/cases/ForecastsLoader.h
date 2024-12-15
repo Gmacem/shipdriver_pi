@@ -6,7 +6,7 @@
 #include <future>
 #include <thread>
 
-namespace MarineNavi {
+namespace marine_navi {
 
 class ForecastsLoader {
 public:
@@ -23,4 +23,4 @@ private:
   std::thread loadThread_;
   std::future<void> future_;
 };
-}  // namespace MarineNavi
+}  // namespace marine_navi
